@@ -10,7 +10,7 @@ sys.path.insert(0,str(root_path))
 
 # ------- fonction d'estimation de la surface d'un bien------
 @tool
-def estimate_surface(budget: float, include_fees: bool, price_per_m2: float)-> dict:
+def estimate_surface(budget: float, include_fees: bool, price_per_m2: float)-> float:
 
     """
             Calcule la surface estimée d'un bien immobilier en fonction du budget et du prix moyen au m².
@@ -32,18 +32,14 @@ def estimate_surface(budget: float, include_fees: bool, price_per_m2: float)-> d
     fee_coefficient = 0.92
 
     if price_per_m2<=0 or budget<=0:
-        return{"error" : " Le budget et le prix au mètre carré doit être supérieur à 0"}
+        raise ValueError("Le budget et le prix au mètre carré doit être supérieur à 0")
     
     effective_budget = budget * fee_coefficient if include_fees else budget
 
     surface = effective_budget/price_per_m2
 
-    return {
-        "budget": budget,
-        "include_fees" : include_fees,
-        "price_per_m2" : price_per_m2,
-        "estimate_surface" : round(surface, 2)
-    }
+    return round(surface, 2)
+    
     
 
     

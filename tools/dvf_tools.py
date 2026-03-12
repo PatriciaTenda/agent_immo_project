@@ -38,8 +38,6 @@ def moyenne_prix_bien_selon_surface_habitable(surface_habitable_souhaite, type_s
     - le coefficient de variation.
 
     Cette fonction permet d'estimer le prix moyen en fonction des caractéristiques fournies par l'utilisateur.
-
-
     """ 
     df = pd.read_parquet("data_immobiliere_loiret.parquet")
 

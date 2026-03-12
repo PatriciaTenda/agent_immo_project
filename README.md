@@ -5,11 +5,7 @@ Le projet consiste à développer une  solution d’intelligence artificielle ba
 # Configuration de l'environnement du projet
  ````bash
     python3.1.. -m venv env
-    source venv/bin/activate
-    pip install python-dotenv
-    pip install -U langchain langchain-huggingface huggingface_hub
-    pip install -qU langchain-mistralai
-    pip install flake8 black
+    env/Scripts/activate   
  ````
 
 # Installation des dépendances
@@ -17,7 +13,10 @@ Le projet consiste à développer une  solution d’intelligence artificielle ba
     pip freeze > requirements.txt # Fichier requirements.txt à créer avec les dépendances nécessaires
     pip install --upgrade huggingface_hub # librairie pour interagir avec HuggingFace
     pip install fastapi[uvicorn standard] # pour l'API REST
-    pip install dotenv # pour gérer les variables d'environnement
+    pip install python-dotenv # pour gérer les variables d'environnement
     pip install -U sentence-transformers # pour la recherche sémantique
-    pip install pandas # pour la manipulation des données    
+    pip install pandas # pour la manipulation des données      
+    pip install -U langchain langchain-huggingface huggingface_hub
+    pip install -qU langchain-mistralai
+    pip install flake8 black   
 ```

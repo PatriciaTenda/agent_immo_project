@@ -14,7 +14,7 @@ root_path = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(root_path))
 
 from langchain.agents import create_agent
-from tools.dvf_tools import estimate_surface
+from tools.estimate_surface_tools import estimate_surface
 from tools.geocode_tools import geocode_address
 from llm.llm_service import llm_model, PROMPT_SYSTEM
 

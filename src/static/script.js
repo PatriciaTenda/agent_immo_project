@@ -1,4 +1,5 @@
 
+// import axios from "axios";
 
 class Interactions{
     constructor(){
@@ -9,21 +10,31 @@ class Interactions{
         let user_prompt = document.querySelector("textarea").value
         this.add_question("user", user_prompt)
         document.querySelector("textarea").value = ""
-        try{
-            // fonction patricia
-            let bad_response = true  // a enlever une fois fonction ajoutée
-            setTimeout(()=>{
-                if(bad_response == true){
-                    console.log('une erreur s\'est produite')
-                    let agent_response = "Une erreur s'est produite."
-                    this.add_question("agent", agent_response)
-                } 
-                    }, 2000)
+
+        fetch('http://127.0.0.1:8000/agent', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ message: user_prompt })
+        })
+        .then(res => {
+            if (!res.ok) {
+                throw new Error("Erreur HTTP " + res.status)
+            }
+            return res.json()
+        })
+        .then(data => {
+            console.log("appel réussi")
+            this.add_question("agent", data.response)
+        })
+        .catch(err => {
+            console.log("une erreur s'est produite !!!:", err)
+            this.add_question("agent", "Une erreur s'est produite.")
+        })
+
             
-        }
-        catch{
-            
-        }
+        
         
         
         
@@ -38,7 +49,7 @@ class Interactions{
         question.className = "question"
         question.innerHTML = `
                                 <div class="${type}">
-                                    <p class="data">${data}</p>
+                                    <p class="data"><pre>${data}</pre></p>
                                 </div>
                             `
         this.interact_container.appendChild(question)

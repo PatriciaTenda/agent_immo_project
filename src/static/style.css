@@ -3,6 +3,9 @@
     margin: 0;
     padding: 0;
 }
+body{
+    background-image: url();
+}
 
 div.body{
     color: rgb(25, 32, 61);

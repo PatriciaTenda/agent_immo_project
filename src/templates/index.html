@@ -4,23 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
     <div class="body">
         
+        {% block content %}
         <section class="half discu">
             <div class="pres">
                 <h1>REIA : Votre assitant immobilier personnel</h1>
             </div>
             <section class="interact">
-                
-                <div class="question">
-                    <div class="agent">
-                        
-                        <p class="data">Bonjour, posez moi votre question.</p>
-                    </div>
-                </div>
+            
                 
             </section>
             <section class="form">
@@ -36,7 +31,9 @@
             </section>
         </section>
     </div>
-    <script src=" https://cdn.jsdelivr.net/npm/axios@1.13.6/dist/axios.min.js "></script>
-    <script src="script.js"></script>
+    {% endblock content %}
+    
+
+    <script src="/static/script.js"></script>
 </body>
 </html>

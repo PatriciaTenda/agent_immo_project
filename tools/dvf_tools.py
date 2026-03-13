@@ -52,16 +52,42 @@ data_immo_path = docs_dir / "data_immobiliere_loiret.parquet"
 @tool
 def moyenne_prix_bien_selon_surface_habitable(surface_habitable_souhaite, type_souhaite, communes_souhaite) -> list[dict[str, float | int | str]]:  
     """
-        Cette fonction permet de calculer le prix moyen d'un bien immobilier en fonction de la surface habitable souhaitée, du type de logement et des communes d'intérêt fournies par l'utilisateur.
-        
-        args: 
-        - surface_habitable_souhaite : un dictionnaire contenant les clés 'min' et 'max' pour la surface habitable souhaitée.
-        - type_souhaite : une liste de types de logement souhaités.
-        - communes_souhaite : une liste de codes postaux des communes d'intérêt.
+      
+    L'utilisateur peut fournir plusieurs informations : 
+    - une surface habitable souhaitée,
+    - un ou plusieurs types de logement,
+    - une ou plusieurs communes d'intérêt.
 
-        returns:
-        - une liste de dictionnaires contenant les statistiques pour chaque commune.
+    surface_habitable_souhaitee est un dictionnaire contenant deux clés : 'min' et 'max'.
+    Les cas possibles sont :
+    - si l'utilisateur connaît uniquement une surface minimale : {'min': x, 'max': False}
+    - si l'utilisateur connaît uniquement une surface maximale : {'min': False, 'max': x}
+    - si l'utilisateur ne mentionne aucune surface : {'min': False, 'max': False}
+    - si l'utilisateur donne une surface idéale unique : {'min': x - 1, 'max': x + 1}
+
+    type_souhaite est une liste de chaînes de caractères. 
+    Elle peut être vide ou contenir :
+    - 'Local industriel, commercial ou assimilé'
+    - 'Maison'
+    - 'Dépendance'
+    - 'Appartement'
+
+    communes_souhaitees est une liste de codes postaux. Par exemple :
+    - [45130, 45100, 45000]
+    Si l'utilisateur fournit un nom de ville, tous les codes postaux associés doivent être ajoutés à la liste.
+    (Les données sont limitées au département du Loiret.)
+
+    Le résultat de cette fonction est une liste de dictionnaires.  
+    Pour chaque commune, on obtient :
+    - le code postal,
+    - le prix minimum,
+    - le prix maximum,
+    - le prix moyen,
+
+
+    Cette fonction permet d'estimer le prix moyen en fonction des caractéristiques fournies par l'utilisateur.
     """
+   
     # ---- load data from data repository  ----
     df = pd.read_parquet(data_immo_path)
 
@@ -92,7 +118,7 @@ def moyenne_prix_bien_selon_surface_habitable(surface_habitable_souhaite, type_s
             'max' : df_max,
             'min' : df_min,
             'mean': df_mean,
-            'cv' : df_cv
+
         }
         results.append(result)
     return results

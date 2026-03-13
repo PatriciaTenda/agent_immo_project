@@ -9,7 +9,7 @@ sys.path.insert(0,str(root_path))
 
 
 class AgentRequest(BaseModel):
-    content: str
+    content: object
 
 
 class AgentResponse(BaseModel):

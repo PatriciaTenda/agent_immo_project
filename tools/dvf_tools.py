@@ -1,11 +1,4 @@
-import pandas as pd
-
-df = pd.read_parquet("data_immobiliere_loiret.parquet")
-
-
-
-def moyenne_prix_bien_selon_surface_habitable(surface_habitable_souhaite, type_souhaite, communes_souhaite):  
-    """
+"""
     L'utilisateur peut fournir plusieurs informations : 
     - une surface habitable souhaitée,
     - un ou plusieurs types de logement,
@@ -18,7 +11,8 @@ def moyenne_prix_bien_selon_surface_habitable(surface_habitable_souhaite, type_s
     - si l'utilisateur ne mentionne aucune surface : {'min': False, 'max': False}
     - si l'utilisateur donne une surface idéale unique : {'min': x - 1, 'max': x + 1}
 
-    type_souhaite est une liste de chaînes de caractères. Elle peut être vide ou contenir :
+    type_souhaite est une liste de chaînes de caractères. 
+    Elle peut être vide ou contenir :
     - 'Local industriel, commercial ou assimilé'
     - 'Maison'
     - 'Dépendance'
@@ -38,19 +32,51 @@ def moyenne_prix_bien_selon_surface_habitable(surface_habitable_souhaite, type_s
     - le coefficient de variation.
 
     Cette fonction permet d'estimer le prix moyen en fonction des caractéristiques fournies par l'utilisateur.
-    """ 
-    df = pd.read_parquet("data_immobiliere_loiret.parquet")
+    """
 
-    if surface_habitable_souhaite['min'] == False:
+# ---- imports des librairies nécessaires ----
+import pandas as pd
+import sys
+from pathlib import Path
+from langchain.tools import tool
+
+
+# Ajouter le chemin du dossier parent au sys.path
+current_dir = Path(__file__).resolve().parents[1]
+docs_dir = current_dir / "docs"
+sys.path.insert(0, str(docs_dir))
+data_immo_path = docs_dir / "data_immobiliere_loiret.parquet"
+
+
+# ---- function to calculate the average price of a property based on the habitable surface, type and location ----
+@tool
+def moyenne_prix_bien_selon_surface_habitable(surface_habitable_souhaite, type_souhaite, communes_souhaite) -> list[dict[str, float | int | str]]:  
+    """
+        Cette fonction permet de calculer le prix moyen d'un bien immobilier en fonction de la surface habitable souhaitée, du type de logement et des communes d'intérêt fournies par l'utilisateur.
+        
+        args: 
+        - surface_habitable_souhaite : un dictionnaire contenant les clés 'min' et 'max' pour la surface habitable souhaitée.
+        - type_souhaite : une liste de types de logement souhaités.
+        - communes_souhaite : une liste de codes postaux des communes d'intérêt.
+
+        returns:
+        - une liste de dictionnaires contenant les statistiques pour chaque commune.
+    """
+    # ---- load data from data repository  ----
+    df = pd.read_parquet(data_immo_path)
+
+    # ---- gerer les cas où l'utilisateur ne fournit pas de surface habitable minimale ou maximale ----
+    if not surface_habitable_souhaite['min']:
         surface_habitable_souhaite['min'] = 1 
-    if surface_habitable_souhaite['max'] == False:
+    if not surface_habitable_souhaite['max']:
         surface_habitable_souhaite['max'] = 100000
 
+    # ---- filtrer les données en fonction des critères de l'utilisateur et calculer les statistiques pour chaque commune ----
     results = []
     for commune in communes_souhaite:
         df_ = df[(df["Surface reelle bati"] > surface_habitable_souhaite['min']) & (df["Surface reelle bati"] < surface_habitable_souhaite['max'])]
         if len(type_souhaite) > 0:
-            df_1 = df_[df['Type local'].isin(values=type_souhaite)]
+            df_1 = df_[df_['Type local'].isin(values=type_souhaite)]
         else:
             df_1=df_
         df_2 = df_1[df_1['Code postal']== commune]
@@ -73,3 +99,8 @@ def moyenne_prix_bien_selon_surface_habitable(surface_habitable_souhaite, type_s
 
 
 
+if __name__ == "__main__" :
+    surface_habitable_souhaite = {'min': 50, 'max': 100}
+    type_souhaite = ['Maison', 'Appartement']
+    communes_souhaite = [45130, 45100, 45000]
+    print(moyenne_prix_bien_selon_surface_habitable.invoke({'surface_habitable_souhaite': surface_habitable_souhaite, 'type_souhaite': type_souhaite, 'communes_souhaite': communes_souhaite}))

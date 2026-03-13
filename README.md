@@ -12,6 +12,7 @@ Le projet consiste à développer une  solution d’intelligence artificielle ba
  ```bash
     pip freeze > requirements.txt # Fichier requirements.txt à créer avec les dépendances nécessaires
     pip install --upgrade huggingface_hub # librairie pour interagir avec HuggingFace
+    pip install fastapi[all] # pour l'API REST ou uvicorn[standard] si vous préférez utiliser uvicorn directement
     pip install fastapi[uvicorn standard] # pour l'API REST
     pip install python-dotenv # pour gérer les variables d'environnement
     pip install -U sentence-transformers # pour la recherche sémantique

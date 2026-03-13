@@ -1,23 +1,18 @@
 # noqa
 # Import des librairies
-import sys
 import os
-from typing import Any
+from typing import Any, Sequence, Callable
 from dotenv import load_dotenv
-from pathlib import Path
-
-load_dotenv()
-
-
-# ajouter la racine du projet au path
-root_path = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(root_path))
 
 from langchain.agents import create_agent
+from langchain.tools import BaseTool
 from tools.estimate_surface_tools import estimate_surface
 from tools.geocode_tools import geocode_address
 from llm.llm_service import llm_model, PROMPT_SYSTEM
+from tools.dvf_tools import moyenne_prix_bien_selon_surface_habitable
 
+# ----- Charger les variables d'environnement à partir du fichier .env -----
+load_dotenv()
 
 # ----- enable automated tracing of your model calls, set the LangSmith API key ------
 LANGSMITH_API_KEY = os.getenv("LANGSMITH_API_KEY")
@@ -26,7 +21,7 @@ if "LANGSMITH_API_KEY" not in os.environ:
 os.environ["LANGSMITH_TRACING"] = "true"
 
 # ---- define tools for agent-----
-tools = [estimate_surface, geocode_address]
+tools: Sequence[BaseTool | Callable[..., Any] | dict[str, Any]] = [estimate_surface, geocode_address, moyenne_prix_bien_selon_surface_habitable]
 
 # ----- agent ------
 agent = create_agent(
@@ -64,6 +59,35 @@ def agent_run(user_query:str)->dict[str, Any]:
             return {"error" : e}
         
 if __name__ == "__main__":
-    question = "Voici un bien à 250 000 euros situé au 10 rue de Rivoli à Paris, peux-tu localiser l'adresse avant l'analyse et estimer la surface d'un bien à ce prix là dans la meme zone ?"
+    question = """
+        Tu dois obligatoirement utiliser les 3 tools suivants dans cet ordre, sans en sauter aucun :
+
+        geocode_address
+        estimate_surface
+        moyenne_prix_bien_selon_surface_habitable
+        Contexte utilisateur :
+
+        Budget : 250000 euros
+        Adresse à géocoder : 10 rue de Rivoli, Paris
+        Frais inclus : true
+        Prix moyen au m2 à utiliser pour l'estimation : 9800
+        Paramètres imposés pour le tool DVF :
+
+        surface_habitable_souhaite = {"min": 20, "max": 30}
+        type_souhaite = ["Appartement", "Maison"]
+        communes_souhaite = [45000, 45100, 45130]
+        Consignes de sortie :
+
+        Section 1 : résultat géocodage (coordonnées + statut)
+        Section 2 : surface estimée avec la formule utilisée
+        Section 3 : résultat DVF par commune (min, max, mean, cv)
+        Section 4 : conclusion conseil immobilier synthétique
+        Important :
+
+        N'invente aucun résultat tool.
+        Si un tool échoue, affiche clairement l'erreur mais continue avec les autres tools si possible.
+    """
     result = agent_run(question)
     print(result)
+
+    
